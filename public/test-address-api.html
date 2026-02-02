@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Address API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Bangladesh Address API Test</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Load Divisions</h2>
+        <button onclick="testDivisions()">Test Divisions API</button>
+        <div id="divisions-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Load Districts (Division ID: 1)</h2>
+        <button onclick="testDistricts()">Test Districts API</button>
+        <div id="districts-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Load Upazilas (District ID: 1)</h2>
+        <button onclick="testUpazilas()">Test Upazilas API</button>
+        <div id="upazilas-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 4: Load Unions (Upazila ID: 1)</h2>
+        <button onclick="testUnions()">Test Unions API</button>
+        <div id="unions-result"></div>
+    </div>
+
+    <script>
+        // Change this to your actual domain
+        const API_BASE = window.location.origin;
+        
+        console.log('API Base URL:', API_BASE);
+
+        function testDivisions() {
+            const resultDiv = document.getElementById('divisions-result');
+            resultDiv.innerHTML = '<p>Loading...</p>';
+            
+            fetch(`${API_BASE}/api/address/divisions`)
+                .then(response => {
+                    console.log('Divisions Response:', response);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Divisions Data:', data);
+                    resultDiv.innerHTML = `
+                        <p class="success">✅ Success! Found ${data.length} divisions</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                })
+                .catch(error => {
+                    console.error('Divisions Error:', error);
+                    resultDiv.innerHTML = `
+                        <p class="error">❌ Error: ${error.message}</p>
+                        <p>Check browser console for details</p>
+                    `;
+                });
+        }
+
+        function testDistricts() {
+            const resultDiv = document.getElementById('districts-result');
+            resultDiv.innerHTML = '<p>Loading...</p>';
+            
+            fetch(`${API_BASE}/api/address/districts/1`)
+                .then(response => {
+                    console.log('Districts Response:', response);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Districts Data:', data);
+                    resultDiv.innerHTML = `
+                        <p class="success">✅ Success! Found ${data.length} districts</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                })
+                .catch(error => {
+                    console.error('Districts Error:', error);
+                    resultDiv.innerHTML = `
+                        <p class="error">❌ Error: ${error.message}</p>
+                        <p>Check browser console for details</p>
+                    `;
+                });
+        }
+
+        function testUpazilas() {
+            const resultDiv = document.getElementById('upazilas-result');
+            resultDiv.innerHTML = '<p>Loading...</p>';
+            
+            fetch(`${API_BASE}/api/address/upazilas/1`)
+                .then(response => {
+                    console.log('Upazilas Response:', response);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Upazilas Data:', data);
+                    resultDiv.innerHTML = `
+                        <p class="success">✅ Success! Found ${data.length} upazilas</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                })
+                .catch(error => {
+                    console.error('Upazilas Error:', error);
+                    resultDiv.innerHTML = `
+                        <p class="error">❌ Error: ${error.message}</p>
+                        <p>Check browser console for details</p>
+                    `;
+                });
+        }
+
+        function testUnions() {
+            const resultDiv = document.getElementById('unions-result');
+            resultDiv.innerHTML = '<p>Loading...</p>';
+            
+            fetch(`${API_BASE}/api/address/unions/1`)
+                .then(response => {
+                    console.log('Unions Response:', response);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Unions Data:', data);
+                    resultDiv.innerHTML = `
+                        <p class="success">✅ Success! Found ${data.length} unions</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                })
+                .catch(error => {
+                    console.error('Unions Error:', error);
+                    resultDiv.innerHTML = `
+                        <p class="error">❌ Error: ${error.message}</p>
+                        <p>Check browser console for details</p>
+                    `;
+                });
+        }
+
+        // Auto-test on load
+        window.addEventListener('load', () => {
+            console.log('Page loaded. Click buttons to test APIs.');
+            console.log('API Base URL:', API_BASE);
+        });
+    </script>
+</body>
+</html>

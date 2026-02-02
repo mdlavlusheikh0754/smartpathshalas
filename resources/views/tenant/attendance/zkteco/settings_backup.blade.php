@@ -1,0 +1,332 @@
+@extends('layouts.tenant')
+
+@section('title', 'ZKTeco ডিভাইস সেটিংস')
+
+@section('content')
+<div class="p-8">
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">ZKTeco ডিভাইস সেটিংস</h1>
+            <p class="text-gray-600 mt-1">ডিভাইসের IP এবং পোর্ট কনফিগার করুন</p>
+        </div>
+        <a href="{{ route('tenant.attendance.zkteco.index') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium">
+            <i class="fas fa-arrow-left mr-2"></i>ফিরে যান
+        </a>
+    </div>
+
+    <div class="max-w-2xl mx-auto">
+        <!-- Device Configuration -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+            <h3 class="text-xl font-bold text-gray-900 mb-6">ডিভাইস কনফিগারেশন</h3>
+            
+            <form id="settings-form" class="space-y-6">
+                @csrf
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">ডিভাইস IP ঠিকানা</label>
+                    <input type="text" name="device_ip" value="{{ $currentIp }}" 
+                           class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           placeholder="192.168.1.201" required>
+                    <p class="text-gray-500 text-sm mt-1">আপনার ZKTeco K50A ডিভাইসের IP ঠিকানা</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">ডিভাইস পোর্ট</label>
+                    <input type="number" name="device_port" value="{{ $currentPort }}" 
+                           class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           placeholder="4370" min="1" max="65535" required>
+                    <p class="text-gray-500 text-sm mt-1">সাধারণত 4370 (ডিফল্ট পোর্ট)</p>
+                </div>
+
+                <div class="flex gap-4">
+                    <button type="button" id="test-connection-btn"
+                            class="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-bold transition-colors">
+                        <i class="fas fa-plug mr-2"></i>সংযোগ পরীক্ষা করুন
+                    </button>
+                    <button type="submit" 
+                            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold transition-colors">
+                        <i class="fas fa-save mr-2"></i>সেটিংস সংরক্ষণ করুন
+                    </button>
+                </div>
+                
+                <!-- Debug buttons -->
+                <div class="mt-4 space-y-2">
+                    <button type="button" onclick="alert('JavaScript কাজ করছে!'); console.log('Inline test successful');" 
+                            class="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded-lg text-sm">
+                        🧪 Inline JavaScript টেস্ট
+                    </button>
+                    <button type="button" onclick="window.open('debug_zkteco_connection.html', '_blank')" 
+                            class="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg text-sm">
+                        🔧 Advanced Debug Tool খুলুন
+                    </button>
+                    <button type="button" onclick="manualConnectionTest()" 
+                            class="w-full bg-orange-600 hover:bg-orange-700 text-white py-2 rounded-lg text-sm">
+                        🚀 Manual Connection Test
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Device Setup Guide -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <h3 class="text-xl font-bold text-gray-900 mb-4">ডিভাইস সেটআপ গাইড</h3>
+            
+            <div class="space-y-4">
+                <div class="flex items-start">
+                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-4 mt-1">
+                        <span class="text-blue-600 font-bold text-sm">1</span>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-900">ডিভাইস নেটওয়ার্ক সেটআপ</h4>
+                        <p class="text-gray-600 text-sm">ZKTeco K50A ডিভাইসটি আপনার নেটওয়ার্কের সাথে সংযুক্ত করুন এবং একটি স্থির IP ঠিকানা সেট করুন।</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start">
+                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-4 mt-1">
+                        <span class="text-blue-600 font-bold text-sm">2</span>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-900">IP ঠিকানা কনফিগার করুন</h4>
+                        <p class="text-gray-600 text-sm">ডিভাইসের মেনু থেকে Communication → TCP/IP সেটিংসে গিয়ে IP ঠিকানা সেট করুন।</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start">
+                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-4 mt-1">
+                        <span class="text-blue-600 font-bold text-sm">3</span>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-900">সংযোগ পরীক্ষা</h4>
+                        <p class="text-gray-600 text-sm">উপরের ফর্মে IP ঠিকানা দিয়ে "সংযোগ পরীক্ষা করুন" বাটনে ক্লিক করুন।</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start">
+                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-4 mt-1">
+                        <span class="text-blue-600 font-bold text-sm">4</span>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-900">ব্যবহারকারী সিঙ্ক</h4>
+                        <p class="text-gray-600 text-sm">সফল সংযোগের পর, শিক্ষার্থীদের তথ্য ডিভাইসে আপলোড করুন।</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Connection Status -->
+        <div id="connection-status" class="mt-6 hidden">
+            <!-- Status will be shown here -->
+        </div>
+        
+        <!-- JavaScript Test Section -->
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-6">
+            <h4 class="font-semibold text-yellow-800 mb-2">JavaScript টেস্ট</h4>
+            <p class="text-yellow-700 text-sm mb-3">যদি "সংযোগ পরীক্ষা করুন" বাটন কাজ না করে, তাহলে নিচের বাটনটি চেষ্টা করুন:</p>
+            <button type="button" onclick="alert('JavaScript কাজ করছে!'); console.log('Inline test successful');" 
+                    class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg text-sm">
+                Inline JavaScript টেস্ট
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Modal -->
+<div id="loading-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
+        <div class="text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p class="text-gray-700 font-medium" id="loading-text">প্রক্রিয়াকরণ...</p>
+        </div>
+    </div>
+</div>
+
+@endsection
+
+@section('scripts')
+<script>
+// Ensure functions are available immediately
+function showLoading(text = 'প্রক্রিয়াকরণ...') {
+    document.getElementById('loading-text').textContent = text;
+    document.getElementById('loading-modal').classList.remove('hidden');
+    document.getElementById('loading-modal').classList.add('flex');
+}
+
+function hideLoading() {
+    document.getElementById('loading-modal').classList.add('hidden');
+    document.getElementById('loading-modal').classList.remove('flex');
+}
+
+function showStatus(message, type = 'info') {
+    const statusDiv = document.getElementById('connection-status');
+    const bgClass = type === 'success' ? 'bg-green-50 border-green-200 text-green-800' :
+                   type === 'error' ? 'bg-red-50 border-red-200 text-red-800' :
+                   'bg-blue-50 border-blue-200 text-blue-800';
+    
+    const iconClass = type === 'success' ? 'fas fa-check-circle text-green-600' :
+                     type === 'error' ? 'fas fa-exclamation-circle text-red-600' :
+                     'fas fa-info-circle text-blue-600';
+    
+    statusDiv.innerHTML = `
+        <div class="rounded-lg border p-4 ${bgClass}">
+            <div class="flex items-center">
+                <i class="${iconClass} mr-3"></i>
+                <span class="font-medium">${message}</span>
+            </div>
+        </div>
+    `;
+    statusDiv.classList.remove('hidden');
+    
+    // Auto hide after 5 seconds
+    setTimeout(() => {
+        statusDiv.classList.add('hidden');
+    }, 5000);
+}
+
+function testConnection() {
+    console.log('testConnection function called');
+    
+    const ip = document.querySelector('input[name="device_ip"]').value;
+    const port = document.querySelector('input[name="device_port"]').value;
+    
+    if (!ip || !port) {
+        showStatus('IP ঠিকানা এবং পোর্ট পূরণ করুন', 'error');
+        return;
+    }
+    
+    showLoading('সংযোগ পরীক্ষা করা হচ্ছে...');
+    
+    fetch('{{ route("tenant.attendance.zkteco.test") }}', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            device_ip: ip,
+            device_port: parseInt(port)
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        hideLoading();
+        
+        if (data.success) {
+            let message = 'সংযোগ সফল! ডিভাইস প্রস্তুত।';
+            if (data.device_info) {
+                message += ` (ব্যবহারকারী: ${data.device_info.user_count || 0}, রেকর্ড: ${data.device_info.record_count || 0})`;
+            }
+            showStatus(message, 'success');
+        } else {
+            showStatus(data.message || 'সংযোগ ব্যর্থ', 'error');
+        }
+    })
+    .catch(error => {
+        hideLoading();
+        showStatus('সংযোগ পরীক্ষায় ত্রুটি: ' + error.message, 'error');
+        console.error('Connection test error:', error);
+    });
+}
+
+// Manual connection test function
+function manualConnectionTest() {
+    console.log('Manual connection test started');
+    
+    const ip = document.querySelector('input[name="device_ip"]').value || '192.168.1.201';
+    const port = document.querySelector('input[name="device_port"]').value || '4370';
+    
+    showLoading('Manual test চলছে...');
+    
+    // Simulate a connection test
+    setTimeout(() => {
+        hideLoading();
+        
+        // Show detailed test results
+        const testResults = `
+            <div class="space-y-2">
+                <div class="text-sm">
+                    <strong>Device IP:</strong> ${ip}<br>
+                    <strong>Device Port:</strong> ${port}<br>
+                    <strong>Test Time:</strong> ${new Date().toLocaleString()}<br>
+                    <strong>Status:</strong> Manual test completed
+                </div>
+                <div class="mt-3 p-3 bg-blue-100 rounded">
+                    <strong>Next Steps:</strong><br>
+                    1. Check if device is powered on<br>
+                    2. Verify network cable connection<br>
+                    3. Confirm IP settings on device<br>
+                    4. Try ping test: <code>ping ${ip}</code>
+                </div>
+            </div>
+        `;
+        
+        const statusDiv = document.getElementById('connection-status');
+        statusDiv.innerHTML = `
+            <div class="rounded-lg border p-4 bg-blue-50 border-blue-200 text-blue-800">
+                <div class="flex items-start">
+                    <i class="fas fa-info-circle text-blue-600 mr-3 mt-1"></i>
+                    <div class="flex-1">
+                        ${testResults}
+                    </div>
+                </div>
+            </div>
+        `;
+        statusDiv.classList.remove('hidden');
+        
+    }, 2000);
+}
+
+// Debug logging
+console.log('ZKTeco settings JavaScript loaded');
+console.log('testConnection function defined:', typeof testConnection);
+
+// Wait for DOM to be ready and attach event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, testConnection available:', typeof testConnection);
+    
+    // Attach click event to test connection button
+    const testBtn = document.getElementById('test-connection-btn');
+    if (testBtn) {
+        testBtn.addEventListener('click', function() {
+            console.log('Test connection button clicked');
+            testConnection();
+        });
+        console.log('Event listener attached to test connection button');
+    } else {
+        console.error('Test connection button not found');
+    }
+    
+    // Form submission handler
+    document.getElementById('settings-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData);
+        
+        showLoading('সেটিংস সংরক্ষণ করা হচ্ছে...');
+        
+        fetch('{{ route("tenant.attendance.zkteco.update-settings") }}', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideLoading();
+            
+            if (data.success) {
+                showStatus('সেটিংস সফলভাবে সংরক্ষণ করা হয়েছে', 'success');
+            } else {
+                showStatus(data.message || 'সেটিংস সংরক্ষণ করতে ব্যর্থ', 'error');
+            }
+        })
+        .catch(error => {
+            hideLoading();
+            showStatus('সেটিংস সংরক্ষণে ত্রুটি: ' + error.message, 'error');
+        });
+    });
+});
+</script>
+@endsection

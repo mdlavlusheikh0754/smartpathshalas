@@ -1,0 +1,702 @@
+@extends('layouts.tenant')
+
+@section('content')
+<div class="p-8 print-content">
+    <div class="max-w-full mx-auto">
+        <!-- Header -->
+        <div class="mb-6 flex items-center justify-between print-header">
+            <div>
+                <h1 class="text-3xl font-bold text-purple-600">পরীক্ষা ম্যানেজমেন্ট</h1>
+                <p class="text-gray-600 mt-1">পরীক্ষা তৈরি, সম্পাদনা এবং পরিচালনা করুন।</p>
+                <!-- Print-only information -->
+                <div class="hidden print:block mt-2">
+                    <p class="text-sm">প্রিন্ট তারিখ: {{ date('d/m/Y') }} | সময়: {{ date('H:i') }}</p>
+                    <p class="text-sm">স্কুল: {{ $settings->school_name_bn ?? 'ইকরা নূরানিয়া একাডেমি' }}</p>
+                </div>
+            </div>
+            <div class="flex gap-3 no-print">
+                <button onclick="history.back()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 print-keep">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    ফিরে যান
+                </button>
+                <button onclick="openAddModal()" class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    নতুন পরীক্ষা যোগ করুন
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 no-print">
+            <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                <div class="flex items-center gap-4">
+                    <div class="bg-purple-100 p-3 rounded-xl">
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-gray-600 text-sm">মোট পরীক্ষা</p>
+                        <p class="text-3xl font-bold text-gray-900" id="totalExams" data-bengali-display>{{ $exams->count() ?? 0 }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                <div class="flex items-center gap-4">
+                    <div class="bg-green-100 p-3 rounded-xl">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-gray-600 text-sm">সম্পন্ন হয়েছে</p>
+                        <p class="text-3xl font-bold text-gray-900" id="completedExams">০</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                <div class="flex items-center gap-4">
+                    <div class="bg-blue-100 p-3 rounded-xl">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-gray-600 text-sm">চলমান পরীক্ষা</p>
+                        <p class="text-3xl font-bold text-gray-900" id="ongoingExams">০</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                <div class="flex items-center gap-4">
+                    <div class="bg-orange-100 p-3 rounded-xl">
+                        <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-gray-600 text-sm">আসন্ন পরীক্ষা</p>
+                        <p class="text-3xl font-bold text-gray-900" id="upcomingExams">০</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filter Section -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 mb-6 no-print">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">পরীক্ষার নাম দিয়ে খুঁজুন</label>
+                    <div class="relative">
+                        <input type="text" id="searchByName" placeholder="পরীক্ষার নাম দিয়ে খুঁজুন" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" oninput="filterExams()">
+                        <svg class="w-5 h-5 text-gray-400 absolute right-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">স্ট্যাটাস</label>
+                    <select id="statusFilter" onchange="filterExams()" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <option value="">সকল স্ট্যাটাস</option>
+                        <option value="upcoming">আসন্ন</option>
+                        <option value="ongoing">চলমান</option>
+                        <option value="completed">সম্পন্ন</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">মাস</label>
+                    <select id="monthFilter" onchange="filterExams()" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <option value="">সকল মাস</option>
+                        <option value="1">জানুয়ারি</option>
+                        <option value="2">ফেব্রুয়ারি</option>
+                        <option value="3">মার্চ</option>
+                        <option value="4">এপ্রিল</option>
+                        <option value="5">মে</option>
+                        <option value="6">জুন</option>
+                        <option value="7">জুলাই</option>
+                        <option value="8">আগস্ট</option>
+                        <option value="9">সেপ্টেম্বর</option>
+                        <option value="10">অক্টোবর</option>
+                        <option value="11">নভেম্বর</option>
+                        <option value="12">ডিসেম্বর</option>
+                    </select>
+                </div>
+
+                <button onclick="resetFilters()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-lg font-medium transition-colors">
+                    ফিল্টার রিসেট করুন
+                </button>
+            </div>
+        </div>
+
+        <!-- Exams Table -->
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                <h3 class="text-lg font-bold text-gray-900">পরীক্ষার তালিকা</h3>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full min-w-full">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-sm font-bold text-gray-700 whitespace-nowrap">পরীক্ষার নাম</th>
+                            <th class="px-6 py-4 text-left text-sm font-bold text-gray-700 whitespace-nowrap">শুরুর তারিখ</th>
+                            <th class="px-6 py-4 text-left text-sm font-bold text-gray-700 whitespace-nowrap">শেষ তারিখ</th>
+                            <th class="px-6 py-4 text-left text-sm font-bold text-gray-700 whitespace-nowrap">স্ট্যাটাস</th>
+                            <th class="px-6 py-4 text-left text-sm font-bold text-gray-700 whitespace-nowrap">অংশগ্রহণকারী</th>
+                            <th class="px-6 py-4 text-left text-sm font-bold text-gray-700 whitespace-nowrap no-print">পরিচালনা</th>
+                        </tr>
+                    </thead>
+                    <tbody id="examsTableBody" class="bg-white divide-y divide-gray-200">
+                        <!-- Data will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div class="text-sm text-gray-700">
+                        দেখাচ্ছে <span id="showingFrom">১</span> থেকে <span id="showingTo">১০</span> এর মধ্যে <span id="totalItems">০</span> টি
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="previousPage()" id="prevBtn" class="px-3 py-1 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                            আগে
+                        </button>
+                        <span class="px-3 py-1 text-sm text-gray-700">
+                            পৃষ্ঠা <span id="currentPage">১</span> / <span id="totalPages">১</span>
+                        </span>
+                        <button onclick="nextPage()" id="nextBtn" class="px-3 py-1 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                            পরে
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div id="examModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+    <div class="bg-white rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold text-gray-900" id="modalTitle">নতুন পরীক্ষা যোগ করুন</h3>
+            <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+
+        <form id="examForm" onsubmit="saveExam(event)">
+            <input type="hidden" id="examId" name="id">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">পরীক্ষার নাম *</label>
+                    <input type="text" id="examName" name="name" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">পরীক্ষার ধরন *</label>
+                    <select id="examType" name="exam_type" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <option value="">পরীক্ষার ধরন নির্বাচন করুন</option>
+                        <option value="weekly">সাপ্তাহিক পরীক্ষা</option>
+                        <option value="monthly">মাসিক পরীক্ষা</option>
+                        <option value="1st_term">১ম টার্ম পরীক্ষা</option>
+                        <option value="2nd_term">২য় টার্ম পরীক্ষা</option>
+                        <option value="3rd_term">৩য় টার্ম পরীক্ষা</option>
+                        <option value="mid_term">মধ্যবর্তী পরীক্ষা</option>
+                        <option value="final">চূড়ান্ত পরীক্ষা</option>
+                        <option value="annual">বার্ষিক পরীক্ষা</option>
+                        <option value="test">টেস্ট পরীক্ষা</option>
+                        <option value="assignment">অ্যাসাইনমেন্ট</option>
+                        <option value="practical">ব্যবহারিক পরীক্ষা</option>
+                        <option value="viva">ভাইভা পরীক্ষা</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">শুরুর তারিখ *</label>
+                    <input type="date" id="startDate" name="start_date" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">শেষ তারিখ *</label>
+                    <input type="date" id="endDate" name="end_date" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">সর্বোচ্চ নম্বর *</label>
+                    <input type="number" id="maxMarks" name="max_marks" required min="1" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">পাস নম্বর *</label>
+                    <input type="number" id="passMarks" name="pass_marks" required min="1" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">স্ট্যাটাস</label>
+                    <select id="status" name="status" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <option value="upcoming">আসন্ন</option>
+                        <option value="ongoing">চলমান</option>
+                        <option value="completed">সম্পন্ন</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">বর্ণনা</label>
+                    <textarea id="description" name="description" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"></textarea>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 mt-8">
+                <button type="button" onclick="closeModal()" class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium">
+                    বাতিল করুন
+                </button>
+                <button type="submit" class="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg font-bold">
+                    সংরক্ষণ করুন
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Custom Alert Modal -->
+<div id="alertModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+    <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 text-center">
+        <div id="alertIcon" class="mx-auto mb-4"></div>
+        <h3 id="alertTitle" class="text-xl font-bold text-gray-900 mb-2"></h3>
+        <p id="alertMessage" class="text-gray-600 mb-6"></p>
+        <button onclick="closeAlertModal()" class="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg font-bold w-full">
+            ঠিক আছে
+        </button>
+    </div>
+</div>
+
+<!-- Custom Confirm Modal -->
+<div id="confirmModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+    <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 text-center">
+        <div class="mx-auto mb-4 w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+            <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 mb-2">নিশ্চিতকরণ</h3>
+        <p id="confirmMessage" class="text-gray-600 mb-6"></p>
+        <div class="flex gap-3">
+            <button onclick="closeConfirmModal(false)" class="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium">
+                বাতিল করুন
+            </button>
+            <button onclick="closeConfirmModal(true)" class="flex-1 px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg font-bold">
+                মুছে ফেলুন
+            </button>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+// Sample data - replace with actual data from controller
+let exams = @json($exams ?? []);
+let subjects = @json($subjects ?? []);
+let classes = @json($classes ?? []);
+
+console.log('Loaded exams from server:', exams);
+console.log('Exams count:', exams.length);
+
+let currentPage = 1;
+let itemsPerPage = 10;
+let filteredExams = [...exams];
+
+console.log('Filtered exams:', filteredExams);
+
+// Helper functions for Bengali numbers
+function toBengaliNumber(num) {
+    if (num === null || num === undefined) return '০';
+    const banglaDigits = {'0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪', '5': '৫', '6': '৬', '7': '৭', '8': '৮', '9': '৯'};
+    return num.toString().replace(/\d/g, d => banglaDigits[d]);
+}
+
+function toBengaliDate(dateStr) {
+    if (!dateStr) return '--';
+    const date = new Date(dateStr);
+    return `${toBengaliNumber(date.getDate())}/${toBengaliNumber(date.getMonth() + 1)}/${toBengaliNumber(date.getFullYear())}`;
+}
+
+// Filter exams
+function filterExams() {
+    const nameFilter = document.getElementById('searchByName').value.toLowerCase();
+    const statusFilter = document.getElementById('statusFilter').value;
+    const monthFilter = document.getElementById('monthFilter').value;
+    
+    filteredExams = exams.filter(exam => {
+        const matchesName = exam.name.toLowerCase().includes(nameFilter);
+        const matchesStatus = !statusFilter || exam.status === statusFilter;
+        const matchesMonth = !monthFilter || new Date(exam.start_date).getMonth() + 1 == monthFilter;
+        
+        return matchesName && matchesStatus && matchesMonth;
+    });
+    
+    currentPage = 1;
+    renderExamsTable();
+}
+
+// Reset filters
+function resetFilters() {
+    document.getElementById('searchByName').value = '';
+    document.getElementById('statusFilter').value = '';
+    document.getElementById('monthFilter').value = '';
+    
+    filteredExams = [...exams];
+    currentPage = 1;
+    renderExamsTable();
+}
+
+// Render exams table
+function renderExamsTable() {
+    const tableBody = document.getElementById('examsTableBody');
+    if (!tableBody) return;
+    
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const pageData = filteredExams.slice(startIndex, endIndex);
+    
+    if (pageData.length === 0) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                    <div class="flex flex-col items-center gap-3">
+                        <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        <p class="text-lg font-medium">কোনো পরীক্ষা পাওয়া যায়নি</p>
+                        <p class="text-sm">নতুন পরীক্ষা যোগ করতে উপরের বাটনে ক্লিক করুন</p>
+                    </div>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tableBody.innerHTML = pageData.map(exam => {
+        const statusConfig = {
+            upcoming: { class: 'bg-orange-100 text-orange-800', text: 'আসন্ন', icon: '📅' },
+            ongoing: { class: 'bg-blue-100 text-blue-800', text: 'চলমান', icon: '⏳' },
+            completed: { class: 'bg-green-100 text-green-800', text: 'সম্পন্ন', icon: '✅' }
+        };
+        
+        const status = statusConfig[exam.status] || statusConfig.upcoming;
+        
+        return `
+            <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900">${exam.name}</div>
+                    <div class="text-sm text-gray-500">${exam.exam_type || 'সাধারণ'}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="text-sm text-gray-900">${toBengaliDate(exam.start_date)}</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="text-sm text-gray-900">${toBengaliDate(exam.end_date)}</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${status.class}">
+                        ${status.icon} ${status.text}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="text-sm font-medium text-gray-900">${toBengaliNumber(exam.participants_count || 0)} জন</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap no-print">
+                    <div class="flex flex-wrap gap-1">
+                        <button onclick="editExam(${exam.id})" class="text-blue-600 hover:text-blue-800 font-medium text-xs px-2 py-1 border border-blue-200 rounded hover:bg-blue-50">
+                            সম্পাদনা
+                        </button>
+                        <button onclick="publishResults(${exam.id})" class="text-green-600 hover:text-green-800 font-medium text-xs px-2 py-1 border border-green-200 rounded hover:bg-green-50">
+                            ফলাফল প্রকাশ
+                        </button>
+                        <button onclick="viewResults(${exam.id})" class="text-purple-600 hover:text-purple-800 font-medium text-xs px-2 py-1 border border-purple-200 rounded hover:bg-purple-50">
+                            ফলাফল দেখুন
+                        </button>
+                        <button onclick="markEntry(${exam.id})" class="text-orange-600 hover:text-orange-800 font-medium text-xs px-2 py-1 border border-orange-200 rounded hover:bg-orange-50">
+                            মার্ক এন্ট্রি
+                        </button>
+                        <button onclick="deleteExam(${exam.id})" class="text-red-600 hover:text-red-800 font-medium text-xs px-2 py-1 border border-red-200 rounded hover:bg-red-50">
+                            মুছুন
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+    
+    updatePagination();
+    updateStats();
+}
+
+// Update pagination
+function updatePagination() {
+    const totalItems = filteredExams.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage + 1;
+    const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
+    
+    document.getElementById('showingFrom').textContent = toBengaliNumber(startIndex);
+    document.getElementById('showingTo').textContent = toBengaliNumber(endIndex);
+    document.getElementById('totalItems').textContent = toBengaliNumber(totalItems);
+    document.getElementById('currentPage').textContent = toBengaliNumber(currentPage);
+    document.getElementById('totalPages').textContent = toBengaliNumber(totalPages);
+    
+    document.getElementById('prevBtn').disabled = currentPage === 1;
+    document.getElementById('nextBtn').disabled = currentPage === totalPages;
+}
+
+// Update statistics
+function updateStats() {
+    const completed = exams.filter(e => e.status === 'completed').length;
+    const ongoing = exams.filter(e => e.status === 'ongoing').length;
+    const upcoming = exams.filter(e => e.status === 'upcoming').length;
+    
+    document.getElementById('completedExams').textContent = toBengaliNumber(completed);
+    document.getElementById('ongoingExams').textContent = toBengaliNumber(ongoing);
+    document.getElementById('upcomingExams').textContent = toBengaliNumber(upcoming);
+}
+
+// Pagination functions
+function previousPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        renderExamsTable();
+    }
+}
+
+function nextPage() {
+    const totalPages = Math.ceil(filteredExams.length / itemsPerPage);
+    if (currentPage < totalPages) {
+        currentPage++;
+        renderExamsTable();
+    }
+}
+
+// Modal functions
+function openAddModal() {
+    document.getElementById('modalTitle').textContent = 'নতুন পরীক্ষা যোগ করুন';
+    document.getElementById('examForm').reset();
+    document.getElementById('examId').value = '';
+    document.getElementById('examModal').classList.remove('hidden');
+}
+
+function editExam(id) {
+    const exam = exams.find(e => e.id === id);
+    if (!exam) return;
+    
+    document.getElementById('modalTitle').textContent = 'পরীক্ষা সম্পাদনা করুন';
+    document.getElementById('examId').value = exam.id;
+    document.getElementById('examName').value = exam.name || '';
+    document.getElementById('examType').value = exam.exam_type || '';
+    document.getElementById('startDate').value = exam.start_date || '';
+    document.getElementById('endDate').value = exam.end_date || '';
+    document.getElementById('maxMarks').value = exam.max_marks || '';
+    document.getElementById('passMarks').value = exam.pass_marks || '';
+    document.getElementById('status').value = exam.status || 'upcoming';
+    document.getElementById('description').value = exam.description || '';
+    
+    document.getElementById('examModal').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('examModal').classList.add('hidden');
+}
+
+let confirmCallback = null;
+
+function showAlert(title, message, type = 'success') {
+    const iconHtml = type === 'success' 
+        ? '<div class="mx-auto mb-4 w-16 h-16 bg-green-100 rounded-full flex items-center justify-center"><svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></div>'
+        : '<div class="mx-auto mb-4 w-16 h-16 bg-red-100 rounded-full flex items-center justify-center"><svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></div>';
+    
+    document.getElementById('alertIcon').innerHTML = iconHtml;
+    document.getElementById('alertTitle').textContent = title;
+    document.getElementById('alertMessage').textContent = message;
+    document.getElementById('alertModal').classList.remove('hidden');
+}
+
+function closeAlertModal() {
+    document.getElementById('alertModal').classList.add('hidden');
+}
+
+function showConfirm(message, callback) {
+    document.getElementById('confirmMessage').textContent = message;
+    document.getElementById('confirmModal').classList.remove('hidden');
+    confirmCallback = callback;
+}
+
+function closeConfirmModal(confirmed) {
+    document.getElementById('confirmModal').classList.add('hidden');
+    if (confirmCallback) {
+        confirmCallback(confirmed);
+        confirmCallback = null;
+    }
+}
+
+function deleteExam(id) {
+    showConfirm('আপনি কি নিশ্চিত যে এই পরীক্ষাটি মুছে ফেলতে চান?', (confirmed) => {
+        if (confirmed) {
+            fetch(`/exams/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    exams = exams.filter(e => e.id !== id);
+                    filteredExams = filteredExams.filter(e => e.id !== id);
+                    renderExamsTable();
+                    updateStats();
+                    showAlert('সফল!', 'পরীক্ষা সফলভাবে মুছে ফেলা হয়েছে', 'success');
+                } else {
+                    showAlert('ত্রুটি!', data.message || 'পরীক্ষা মুছে ফেলা যায়নি', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('ত্রুটি!', 'একটি ত্রুটি ঘটেছে। আবার চেষ্টা করুন।', 'error');
+            });
+        }
+    });
+}
+
+function saveExam(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const examData = Object.fromEntries(formData);
+    
+    const url = examData.id ? `/exams/${examData.id}` : '/exams';
+    
+    if (!examData.id) {
+        formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+    } else {
+        formData.append('_method', 'PUT');
+        formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+    }
+    
+    fetch(url, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (examData.id) {
+                const index = exams.findIndex(e => e.id == examData.id);
+                if (index !== -1) {
+                    exams[index] = data.exam;
+                }
+            } else {
+                exams.push(data.exam);
+            }
+            
+            filteredExams = [...exams];
+            renderExamsTable();
+            updateStats();
+            closeModal();
+            showAlert('সফল!', 'পরীক্ষা সফলভাবে সংরক্ষণ করা হয়েছে', 'success');
+        } else {
+            showAlert('ত্রুটি!', data.message || 'একটি ত্রুটি ঘটেছে', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('ত্রুটি!', 'একটি ত্রুটি ঘটেছে। আবার চেষ্টা করুন।', 'error');
+    });
+}
+
+// Additional management functions
+function publishResults(id) {
+    if (confirm('আপনি কি নিশ্চিত যে এই পরীক্ষার ফলাফল প্রকাশ করতে চান?')) {
+        fetch(`/exams/${id}/publish`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('ফলাফল সফলভাবে প্রকাশিত হয়েছে!');
+                // Update exam status
+                const exam = exams.find(e => e.id === id);
+                if (exam) {
+                    exam.status = 'published';
+                    renderExamsTable();
+                }
+            } else {
+                alert(data.message || 'ফলাফল প্রকাশ করা যায়নি');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('একটি ত্রুটি ঘটেছে। আবার চেষ্টা করুন।');
+        });
+    }
+}
+
+function viewResults(id) {
+    // Redirect to results page with exam ID
+    window.location.href = `/results?exam_id=${id}`;
+}
+
+function markEntry(id) {
+    // Redirect to mark entry page with exam ID
+    window.location.href = `/marks/entry?exam_id=${id}`;
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Exam Management Page Loaded');
+    console.log('Total exams:', exams.length);
+    
+    // Manual Bengali number conversion for total exams
+    const totalExamsEl = document.getElementById('totalExams');
+    if (totalExamsEl) {
+        const value = totalExamsEl.textContent;
+        const bengaliValue = value.replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+        totalExamsEl.textContent = bengaliValue;
+    }
+    
+    // Initialize Bengali utilities if available
+    if (typeof BengaliUtils !== 'undefined') {
+        BengaliUtils.displayBengaliNumbers();
+        console.log('Bengali utilities initialized');
+    } else {
+        console.warn('BengaliUtils not loaded, using manual conversion');
+    }
+    
+    // Render table
+    try {
+        renderExamsTable();
+        console.log('Table rendered successfully');
+    } catch (error) {
+        console.error('Error rendering table:', error);
+    }
+});
+</script>
+@endpush
+@endsection
