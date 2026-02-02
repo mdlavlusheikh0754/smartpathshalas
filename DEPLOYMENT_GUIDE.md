@@ -52,14 +52,14 @@ FLUSH PRIVILEGES;
 ```bash
 # Clone repository
 cd /var/www
-sudo git clone https://github.com/Lavlu224/smartpathshala.git
-cd smartpathshala
+sudo git clone https://github.com/mdlavlusheikh0754/smartpathshalas.git
+cd smartpathshalas
 
 # Set permissions
-sudo chown -R www-data:www-data /var/www/smartpathshala
-sudo chmod -R 755 /var/www/smartpathshala
-sudo chmod -R 775 /var/www/smartpathshala/storage
-sudo chmod -R 775 /var/www/smartpathshala/bootstrap/cache
+sudo chown -R www-data:www-data /var/www/smartpathshalas
+sudo chmod -R 755 /var/www/smartpathshalas
+sudo chmod -R 775 /var/www/smartpathshalas/storage
+sudo chmod -R 775 /var/www/smartpathshalas/bootstrap/cache
 
 # Install dependencies
 composer install --optimize-autoloader --no-dev
@@ -91,7 +91,7 @@ server {
 server {
     listen 443 ssl http2;
     server_name yourdomain.com www.yourdomain.com;
-    root /var/www/smartpathshala/public;
+    root /var/www/smartpathshalas/public;
 
     # SSL Configuration
     ssl_certificate /path/to/your/certificate.crt;
@@ -166,8 +166,8 @@ sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
 ### 3. **Environment Security**
 ```bash
 # Secure .env file
-sudo chmod 600 /var/www/smartpathshala/.env
-sudo chown www-data:www-data /var/www/smartpathshala/.env
+sudo chmod 600 /var/www/smartpathshalas/.env
+sudo chown www-data:www-data /var/www/smartpathshalas/.env
 ```
 
 ---
@@ -177,7 +177,7 @@ sudo chown www-data:www-data /var/www/smartpathshala/.env
 ### 1. **Log Monitoring**
 ```bash
 # Laravel logs
-tail -f /var/www/smartpathshala/storage/logs/laravel.log
+tail -f /var/www/smartpathshalas/storage/logs/laravel.log
 
 # Nginx logs
 tail -f /var/log/nginx/access.log
@@ -191,7 +191,7 @@ tail -f /var/log/nginx/error.log
 
 DATE=$(date +%Y%m%d_%H%M%S)
 BACKUP_DIR="/home/backup"
-PROJECT_DIR="/var/www/smartpathshala"
+PROJECT_DIR="/var/www/smartpathshalas"
 
 # Database backup
 mysqldump -u smartpathshala_user -p smartpathshala_production > $BACKUP_DIR/db_backup_$DATE.sql
@@ -208,13 +208,13 @@ find $BACKUP_DIR -name "*.tar.gz" -mtime +7 -delete
 ```bash
 # Add to crontab (crontab -e)
 # Laravel scheduler
-* * * * * cd /var/www/smartpathshala && php artisan schedule:run >> /dev/null 2>&1
+* * * * * cd /var/www/smartpathshalas && php artisan schedule:run >> /dev/null 2>&1
 
 # Daily backup
-0 2 * * * /home/backup/smartpathshala_backup.sh
+0 2 * * * /home/backup/smartpathshalas_backup.sh
 
 # ZKTime.Net sync (if using)
-*/2 * * * * cd /var/www/smartpathshala && php zktime_bidirectional_bridge.php >> /var/log/zktime_sync.log 2>&1
+*/2 * * * * cd /var/www/smartpathshalas && php zktime_bidirectional_bridge.php >> /var/log/zktime_sync.log 2>&1
 ```
 
 ---
@@ -249,10 +249,10 @@ df -h
 
 #### **Permission Errors**
 ```bash
-sudo chown -R www-data:www-data /var/www/smartpathshala
-sudo chmod -R 755 /var/www/smartpathshala
-sudo chmod -R 775 /var/www/smartpathshala/storage
-sudo chmod -R 775 /var/www/smartpathshala/bootstrap/cache
+sudo chown -R www-data:www-data /var/www/smartpathshalas
+sudo chmod -R 755 /var/www/smartpathshalas
+sudo chmod -R 775 /var/www/smartpathshalas/storage
+sudo chmod -R 775 /var/www/smartpathshalas/bootstrap/cache
 ```
 
 #### **Database Connection Issues**
