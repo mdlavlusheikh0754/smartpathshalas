@@ -39,11 +39,11 @@ git clone https://github.com/mdlavlusheikh0754/smartpathshalas.git
 cd smartpathshalas
 
 # Run deployment script
-./deploy.sh
+./scripts/deploy.sh
 ```
 
 ### **Manual Deployment**
-See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for detailed instructions.
+See [docs/DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md) for detailed instructions.
 
 ## 📋 **Requirements**
 
@@ -107,18 +107,18 @@ php artisan view:cache
 ### **Biometric Device Setup**
 1. Install ZKTime.Net 3.3 software
 2. Configure device IP (default: 192.168.1.201)
-3. Run bridge script: `php zktime_bidirectional_bridge.php`
-4. Set up automated sync: `zktime_sync_scheduler.bat`
+3. Run bridge script: `php scripts/zktime_bidirectional_bridge.php`
+4. Set up automated sync: `scripts/zktime_sync_scheduler.bat`
 
-See [DEVICE_SETUP_GUIDE.md](DEVICE_SETUP_GUIDE.md) for detailed instructions.
+See [docs/DEVICE_SETUP_GUIDE.md](docs/DEVICE_SETUP_GUIDE.md) for detailed instructions.
 
 ## 📚 **Documentation**
 
-- [**Deployment Guide**](DEPLOYMENT_GUIDE.md) - Production deployment instructions
-- [**Device Setup Guide**](DEVICE_SETUP_GUIDE.md) - ZKTime.Net integration
-- [**API Documentation**](API_DOCUMENTATION.md) - REST API reference
-- [**Bengali Font System**](BENGALI_FONT_SYSTEM.md) - Bengali language support
-- [**Project Status**](PROJECT_STATUS.md) - Current implementation status
+- [**Deployment Guide**](docs/DEPLOYMENT_GUIDE.md) - Production deployment instructions
+- [**Device Setup Guide**](docs/DEVICE_SETUP_GUIDE.md) - ZKTime.Net integration
+- [**API Documentation**](docs/API_DOCUMENTATION.md) - REST API reference
+- [**Bengali Font System**](docs/BENGALI_FONT_SYSTEM.md) - Bengali language support
+- [**Final Deployment Summary**](docs/FINAL_DEPLOYMENT_SUMMARY.md) - Current implementation status
 
 ## 🛠️ **Development**
 
