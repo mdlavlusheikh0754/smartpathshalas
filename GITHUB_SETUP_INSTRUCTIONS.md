@@ -16,7 +16,7 @@ After creating the repository, run these commands in your project directory:
 
 ```bash
 # Add the remote repository
-git remote add origin https://github.com/Lavlu224/smartpathshala.git
+git remote add origin https://github.com/mdlavlusheikh0754/smartpathshala.git
 
 # Push to GitHub
 git push -u origin main
@@ -66,7 +66,7 @@ ssh user@your-vps-ip
 
 # Clone repository
 cd /var/www
-sudo git clone https://github.com/Lavlu224/smartpathshala.git
+sudo git clone https://github.com/mdlavlusheikh0754/smartpathshala.git
 cd smartpathshala
 
 # Set permissions
@@ -171,7 +171,7 @@ git pull origin main
 
 ## 📞 **Support**
 
-- **GitHub Repository**: `https://github.com/Lavlu224/smartpathshala`
+- **GitHub Repository**: `https://github.com/mdlavlusheikh0754/smartpathshala`
 - **Documentation**: Check the various `.md` files in the repository
 - **Issues**: Create GitHub issues for bugs or feature requests
 

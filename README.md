@@ -35,7 +35,7 @@ A comprehensive, production-ready school management system built with Laravel 11
 ### **Quick Deploy to VPS**
 ```bash
 # Clone repository
-git clone https://github.com/Lavlu224/smartpathshala.git
+git clone https://github.com/mdlavlusheikh0754/smartpathshala.git
 cd smartpathshala
 
 # Run deployment script
@@ -61,7 +61,7 @@ See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for detailed instructions.
 
 ### **1. Clone Repository**
 ```bash
-git clone https://github.com/Lavlu224/smartpathshala.git
+git clone https://github.com/mdlavlusheikh0754/smartpathshala.git
 cd smartpathshala
 ```
 
@@ -198,8 +198,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 👨‍💻 **Author**
 
 **Lavlu Sheikh**
-- GitHub: [@Lavlu224](https://github.com/Lavlu224)
-- Repository: [smartpathshala](https://github.com/Lavlu224/smartpathshala)
+- GitHub: [@mdlavlusheikh0754](https://github.com/mdlavlusheikh0754)
+- Repository: [smartpathshala](https://github.com/mdlavlusheikh0754/smartpathshala)
 
 ## 🙏 **Acknowledgments**
 
