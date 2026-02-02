@@ -145,14 +145,30 @@
 
                     <!-- Present Address -->
                     <div class="md:col-span-3">
-                        <h3 class="text-lg font-bold text-gray-800 mb-4">বর্তমান ঠিকানা *</h3>
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-bold text-gray-800 mb-4">বর্তমান ঠিকানা *</h3>
+                            <button type="button" onclick="reloadAddressData()" class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1" title="ঠিকানা পুনরায় লোড করুন">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                </svg>
+                                পুনরায় লোড
+                            </button>
+                        </div>
                     </div>
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">বিভাগ *</label>
-                        <select name="present_division" id="present_division" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" onchange="loadDistricts('present')">
-                            <option value="">নির্বাচন করুন</option>
-                        </select>
+                        <div class="relative">
+                            <select name="present_division" id="present_division" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" onchange="loadDistricts('present')">
+                                <option value="">নির্বাচন করুন</option>
+                            </select>
+                            <div id="division_loading" class="hidden absolute right-3 top-1/2 transform -translate-y-1/2">
+                                <svg class="animate-spin h-4 w-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </div>
+                        </div>
                     </div>
 
                     <div>
@@ -645,6 +661,36 @@
 </div>
 
 <script>
+// Utility function to safely clear file input
+function clearFileInput(input) {
+    try {
+        input.value = '';
+    } catch (error) {
+        // If direct clearing fails, replace the input element
+        const newInput = input.cloneNode(true);
+        newInput.value = '';
+        input.parentNode.replaceChild(newInput, input);
+        
+        // Re-attach event listeners
+        if (newInput.name === 'photo') {
+            newInput.addEventListener('change', previewImage);
+        } else {
+            const onchangeAttr = newInput.getAttribute('onchange');
+            if (onchangeAttr) {
+                const match = onchangeAttr.match(/previewDocument\(event,\s*'([^']+)'\)/);
+                if (match) {
+                    const previewId = match[1];
+                    newInput.addEventListener('change', function(e) {
+                        previewDocument(e, previewId);
+                    });
+                }
+            }
+        }
+        return newInput;
+    }
+    return input;
+}
+
 function toggleRollNumber() {
     const studentType = document.querySelector('input[name="student_type"]:checked').value;
     const rollInput = document.getElementById('roll_number');
@@ -679,14 +725,48 @@ const getApiUrl = (endpoint) => {
 
 // Initialize dropdowns on page load
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Loading divisions...');
-    loadDivisions();
+    console.log('DOM loaded, initializing address dropdowns...');
+    
+    // Add a small delay to ensure all elements are rendered
+    setTimeout(() => {
+        console.log('Starting to load divisions...');
+        loadDivisions();
+    }, 100);
 });
 
 // Load divisions from API
 function loadDivisions() {
     const url = getApiUrl('/api/address/divisions');
     console.log('Fetching divisions from:', url);
+    
+    // Check if elements exist
+    const presentDiv = document.getElementById('present_division');
+    const permanentDiv = document.getElementById('permanent_division');
+    
+    if (!presentDiv) {
+        console.error('❌ present_division element not found!');
+        // Try again after a short delay
+        setTimeout(loadDivisions, 500);
+        return;
+    }
+    if (!permanentDiv) {
+        console.error('❌ permanent_division element not found!');
+        // Try again after a short delay
+        setTimeout(loadDivisions, 500);
+        return;
+    }
+    
+    console.log('✅ Division elements found, proceeding with fetch...');
+    
+    // Show loading indicator
+    const loadingIndicator = document.getElementById('division_loading');
+    if (loadingIndicator) {
+        loadingIndicator.classList.remove('hidden');
+    }
+    
+    // Show loading state
+    presentDiv.innerHTML = '<option value="">লোড হচ্ছে...</option>';
+    permanentDiv.innerHTML = '<option value="">লোড হচ্ছে...</option>';
     
     fetch(url)
         .then(response => {
@@ -698,10 +778,12 @@ function loadDivisions() {
         })
         .then(divisions => {
             console.log('Divisions loaded:', divisions.length);
+            console.log('First division:', divisions[0]);
             addressCache.divisions = divisions;
             
-            const presentDiv = document.getElementById('present_division');
-            const permanentDiv = document.getElementById('permanent_division');
+            // Clear existing options first
+            presentDiv.innerHTML = '<option value="">নির্বাচন করুন</option>';
+            permanentDiv.innerHTML = '<option value="">নির্বাচন করুন</option>';
             
             divisions.forEach(division => {
                 const option1 = new Option(division.name_bn, division.id);
@@ -711,10 +793,37 @@ function loadDivisions() {
             });
             
             console.log('✅ Divisions loaded successfully!');
+            console.log('Present division options:', presentDiv.options.length);
+            console.log('Permanent division options:', permanentDiv.options.length);
+            
+            // Hide loading indicator
+            const loadingIndicator = document.getElementById('division_loading');
+            if (loadingIndicator) {
+                loadingIndicator.classList.add('hidden');
+            }
         })
         .catch(error => {
             console.error('❌ Error loading divisions:', error);
-            alert('বিভাগ লোড করতে সমস্যা হয়েছে: ' + error.message + '\n\nF12 চেপে Console দেখুন।');
+            
+            // Hide loading indicator
+            const loadingIndicator = document.getElementById('division_loading');
+            if (loadingIndicator) {
+                loadingIndicator.classList.add('hidden');
+            }
+            
+            // Show error state
+            presentDiv.innerHTML = '<option value="">বিভাগ লোড করতে ব্যর্থ</option>';
+            permanentDiv.innerHTML = '<option value="">বিভাগ লোড করতে ব্যর্থ</option>';
+            
+            // Show user-friendly error
+            const errorMsg = `বিভাগ লোড করতে সমস্যা হয়েছে: ${error.message}\n\nসমাধান:\n1. পেজ রিফ্রেশ করুন\n2. ইন্টারনেট সংযোগ চেক করুন\n3. F12 চেপে Console দেখুন`;
+            
+            // Don't show alert immediately, let user try to interact first
+            setTimeout(() => {
+                if (presentDiv.options.length <= 1) {
+                    alert(errorMsg);
+                }
+            }, 2000);
         });
 }
 
@@ -754,6 +863,39 @@ function loadDistricts(type) {
             console.error('Error loading districts:', error);
             alert('জেলা লোড করতে সমস্যা হয়েছে।');
         });
+}
+
+// Manual reload function for address data
+function reloadAddressData() {
+    console.log('Manual reload requested...');
+    
+    // Clear cache
+    addressCache = {
+        divisions: [],
+        districts: {},
+        upazilas: {},
+        unions: {}
+    };
+    
+    // Reset all dropdowns
+    const selects = [
+        'present_division', 'present_district', 'present_upazila', 'present_union',
+        'permanent_division', 'permanent_district', 'permanent_upazila', 'permanent_union'
+    ];
+    
+    selects.forEach(selectId => {
+        const select = document.getElementById(selectId);
+        if (select) {
+            if (selectId.includes('division')) {
+                select.innerHTML = '<option value="">লোড হচ্ছে...</option>';
+            } else {
+                select.innerHTML = '<option value="">প্রথমে উপরের ফিল্ড নির্বাচন করুন</option>';
+            }
+        }
+    });
+    
+    // Reload divisions
+    loadDivisions();
 }
 
 function populateDistricts(districts, selectElement) {
@@ -924,7 +1066,8 @@ function previewDocument(event, previewId) {
         // Check file size (10MB = 10 * 1024 * 1024 bytes)
         if (file.size > 10 * 1024 * 1024) {
             alert('ফাইলের সাইজ 10MB এর বেশি হতে পারবে না!');
-            event.target.value = '';
+            // Clear the file input safely
+            clearFileInput(input);
             return;
         }
         
@@ -989,10 +1132,14 @@ function compressImage(file, input, previewDiv) {
                     lastModified: Date.now()
                 });
                 
-                // Create a new FileList
-                const dataTransfer = new DataTransfer();
-                dataTransfer.items.add(compressedFile);
-                input.files = dataTransfer.files;
+                // Try to update the file input safely
+                try {
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(compressedFile);
+                    input.files = dataTransfer.files;
+                } catch (error) {
+                    console.warn('Could not update file input directly, compression will happen on server side');
+                }
                 
                 // Show preview with compressed size
                 const originalSize = (file.size / 1024).toFixed(2);
@@ -1025,20 +1172,10 @@ function resetForm() {
         }
     });
     
-    // Reset file inputs safely by replacing them
+    // Reset file inputs safely
     const fileInputs = form.querySelectorAll('input[type="file"]');
     fileInputs.forEach(input => {
-        const newInput = input.cloneNode(true);
-        input.parentNode.replaceChild(newInput, input);
-        
-        // Re-attach event listeners if needed
-        if (newInput.name === 'photo') {
-            newInput.addEventListener('change', previewImage);
-        } else if (newInput.hasAttribute('onchange')) {
-            // Re-attach document preview listeners
-            const onchangeAttr = newInput.getAttribute('onchange');
-            newInput.setAttribute('onchange', onchangeAttr);
-        }
+        clearFileInput(input);
     });
     
     // Reset image preview
@@ -1067,7 +1204,7 @@ function resetForm() {
     });
     
     // Trigger student type change to reset roll field
-    toggleStudentType('new');
+    toggleRollNumber();
     
     // Reset default values
     const academicYearInput = form.querySelector('input[name="academic_year"]');

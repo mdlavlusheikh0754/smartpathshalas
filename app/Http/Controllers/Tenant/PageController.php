@@ -75,7 +75,25 @@ class PageController extends Controller
         return view('tenant.pages.contact', $this->getSettings());
     }
 
-    // About Sub-pages removed - now combined in about() method
+    public function storeContact(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone' => 'nullable|string|max:20',
+            'subject' => 'required|string|max:255',
+            'message' => 'required|string|max:2000',
+        ]);
+
+        // Store the contact message in session or database
+        // For now, we'll just store in session for display
+        session()->flash('success', 'আপনার বার্তা সফলভাবে পাঠানো হয়েছে। আমরা শীঘ্রই যোগাযোগ করব।');
+        
+        // TODO: Send email notification to admin
+        // Mail::to(config('mail.from.address'))->send(new ContactMessage($validated));
+        
+        return redirect()->route('tenant.contact');
+    }
 
     // Administration Sub-pages
     public function committee()

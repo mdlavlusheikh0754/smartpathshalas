@@ -136,7 +136,7 @@
                                         {{ $result['grade'] ?? '-' }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-center font-medium">
-                                        {{ number_format($result['gpa'], 2) }}
+                                        {{ number_format($result['gpa'] ?? 0, 2) }}
                                     </td>
                                 </tr>
                             @endforeach

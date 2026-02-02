@@ -116,12 +116,43 @@ class PublicResultController extends Controller
         // Calculate rank for this student
         $rank = $this->calculateRankFromResults($responseData['results'], $student->id);
 
+        // Calculate total marks and GPA from studentResult
+        $totalMarks = 0;
+        $totalPossible = 0;
+        $totalGPA = 0;
+        $subjectCount = 0;
+
+        if (isset($studentResult['subjects']) && is_array($studentResult['subjects'])) {
+            foreach ($studentResult['subjects'] as $subject) {
+                if (isset($subject['obtained'])) {
+                    $totalMarks += $subject['obtained'];
+                }
+                if (isset($subject['total'])) {
+                    $totalPossible += $subject['total'];
+                }
+                if (isset($subject['gpa'])) {
+                    $totalGPA += $subject['gpa'];
+                    $subjectCount++;
+                }
+            }
+        }
+
+        $overallGPA = $subjectCount > 0 ? round($totalGPA / $subjectCount, 2) : 0;
+        $overallGrade = $this->calculateGradeFromGPA($overallGPA);
+        $overallResult = $this->calculateResultStatus($overallGPA, $studentResult);
+
+        // Extract subjects for the results table
+        $studentResults = isset($studentResult['subjects']) && is_array($studentResult['subjects']) 
+            ? $studentResult['subjects'] 
+            : [];
+
         $websiteSettings = WebsiteSetting::getSettings();
         $schoolSettings = SchoolSetting::getSettings();
 
         return view('tenant.public-result.result-sheet', compact(
-            'student', 'exam', 'class', 'studentResult', 'rank',
-            'websiteSettings', 'schoolSettings'
+            'student', 'exam', 'class', 'studentResult', 'studentResults', 'rank',
+            'websiteSettings', 'schoolSettings', 'totalMarks', 'totalPossible',
+            'overallGPA', 'overallGrade', 'overallResult'
         ));
     }
 
@@ -251,6 +282,41 @@ class PublicResultController extends Controller
         }
         
         return $rank;
+    }
+
+    private function calculateGradeFromGPA($gpa)
+    {
+        if ($gpa >= 4.0) return 'A+';
+        if ($gpa >= 3.75) return 'A';
+        if ($gpa >= 3.5) return 'A-';
+        if ($gpa >= 3.25) return 'B+';
+        if ($gpa >= 3.0) return 'B';
+        if ($gpa >= 2.75) return 'B-';
+        if ($gpa >= 2.5) return 'C+';
+        if ($gpa >= 2.25) return 'C';
+        if ($gpa >= 2.0) return 'C-';
+        if ($gpa >= 1.75) return 'D+';
+        if ($gpa >= 1.5) return 'D';
+        return 'F';
+    }
+
+    private function calculateResultStatus($overallGPA, $studentResult)
+    {
+        // Check if student has any F grades
+        if (isset($studentResult['subjects']) && is_array($studentResult['subjects'])) {
+            foreach ($studentResult['subjects'] as $subject) {
+                if (isset($subject['gpa']) && $subject['gpa'] < 1.5) {
+                    return 'ফেল';
+                }
+            }
+        }
+        
+        // If overall GPA is below passing threshold, return fail
+        if ($overallGPA < 1.5) {
+            return 'ফেল';
+        }
+        
+        return 'পাস';
     }
 
 }

@@ -82,6 +82,19 @@ class SchoolSetting extends Model
         if ($settings) {
             $settings->update($data);
         } else {
+            // Ensure we have default values for required fields
+            $defaults = [
+                'logo_position' => 'navbar_only',
+                'school_type' => 'private',
+                'education_level' => 'primary',
+            ];
+            
+            $data = array_merge($defaults, $data);
+            
+            // Remove any fields that aren't in the fillable array
+            $fillable = (new static())->getFillable();
+            $data = array_intersect_key($data, array_flip($fillable));
+            
             $settings = static::create($data);
         }
         

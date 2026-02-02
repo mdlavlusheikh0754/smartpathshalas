@@ -57,6 +57,7 @@ Route::middleware([
         Route::get('/notice', 'notice')->name('tenant.notice');
         Route::get('/gallery', 'gallery')->name('tenant.gallery');
         Route::get('/contact', 'contact')->name('tenant.contact');
+        Route::post('/contact', 'storeContact')->name('tenant.contact.store');
         
         // Login Credentials Info Page
         Route::get('/login-info', 'studentsInfo')->name('tenant.login.info');
@@ -140,6 +141,7 @@ Route::middleware([
     Route::get('/homework', [\App\Http\Controllers\Tenant\HomeworkController::class, 'index'])->name('homework.index');
     Route::get('/homework-details/{id}', [\App\Http\Controllers\Tenant\HomeworkController::class, 'getDetails'])->name('homework.details');
     Route::get('/homework/class/{class}', [\App\Http\Controllers\Tenant\HomeworkController::class, 'getByClass'])->name('homework.by-class');
+    Route::get('/homework/subjects-for-class', [\App\Http\Controllers\Tenant\HomeworkController::class, 'getSubjects'])->name('homework.subjects-for-class');
     Route::get('/homework/{id}', [\App\Http\Controllers\Tenant\HomeworkController::class, 'show'])->name('homework.show')->where('id', '[0-9]+');
 
     // Public Result Routes
@@ -531,12 +533,24 @@ Route::middleware([
             Route::delete('/website/hero-image', [\App\Http\Controllers\Tenant\SettingController::class, 'deleteHeroImage'])->name('website.delete-hero-image');
             Route::delete('/website/hero-images/all', [\App\Http\Controllers\Tenant\SettingController::class, 'deleteAllHeroImages'])->name('website.delete-all-hero-images');
             Route::get('/academic', [\App\Http\Controllers\Tenant\SettingController::class, 'academic'])->name('academic');
+            Route::get('/academic-files', [\App\Http\Controllers\Tenant\SettingController::class, 'academicFiles'])->name('academic-files.index');
             Route::get('/users', [\App\Http\Controllers\Tenant\SettingController::class, 'users'])->name('users');
             Route::get('/fee-structure', [\App\Http\Controllers\Tenant\SettingController::class, 'feeStructure'])->name('feeStructure');
             Route::get('/grade', [\App\Http\Controllers\Tenant\SettingController::class, 'grade'])->name('grade');
             Route::get('/notification', [\App\Http\Controllers\Tenant\SettingController::class, 'notification'])->name('notification');
+            Route::post('/notification', [\App\Http\Controllers\Tenant\SettingController::class, 'updateNotification'])->name('notification.update');
             Route::get('/sms-gateway', [\App\Http\Controllers\Tenant\SettingController::class, 'smsGateway'])->name('smsGateway');
+            Route::post('/sms-gateway', [\App\Http\Controllers\Tenant\SettingController::class, 'updateSmsGateway'])->name('smsGateway.update');
+            Route::post('/sms-gateway/test', [\App\Http\Controllers\Tenant\SettingController::class, 'sendTestSms'])->name('smsGateway.test');
+            Route::post('/custom-sms-template', [\App\Http\Controllers\Tenant\SettingController::class, 'storeCustomSmsTemplate'])->name('custom-sms-template.store');
+            Route::put('/custom-sms-template/{id}', [\App\Http\Controllers\Tenant\SettingController::class, 'updateCustomSmsTemplate'])->name('custom-sms-template.update');
+            Route::delete('/custom-sms-template/{id}', [\App\Http\Controllers\Tenant\SettingController::class, 'destroyCustomSmsTemplate'])->name('custom-sms-template.destroy');
             Route::get('/payment-gateway', [\App\Http\Controllers\Tenant\SettingController::class, 'paymentGateway'])->name('paymentGateway');
+            Route::post('/payment-gateway', [\App\Http\Controllers\Tenant\SettingController::class, 'updatePaymentGateway'])->name('payment-gateway.update');
+            Route::post('/custom-payment-method', [\App\Http\Controllers\Tenant\SettingController::class, 'storeCustomPaymentMethod'])->name('custom-payment-method.store');
+            Route::get('/custom-payment-method/{id}', [\App\Http\Controllers\Tenant\SettingController::class, 'showCustomPaymentMethod'])->name('custom-payment-method.show');
+            Route::put('/custom-payment-method/{id}', [\App\Http\Controllers\Tenant\SettingController::class, 'updateCustomPaymentMethod'])->name('custom-payment-method.update');
+            Route::delete('/custom-payment-method/{id}', [\App\Http\Controllers\Tenant\SettingController::class, 'destroyCustomPaymentMethod'])->name('custom-payment-method.destroy');
             Route::get('/backup', [\App\Http\Controllers\Tenant\SettingController::class, 'backup'])->name('backup');
             Route::get('/security', [\App\Http\Controllers\Tenant\SettingController::class, 'security'])->name('security');
         });

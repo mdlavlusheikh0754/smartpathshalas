@@ -9,12 +9,24 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('website_settings', function (Blueprint $table) {
-            $table->date('admission_start_date')->nullable();
-            $table->date('admission_end_date')->nullable();
-            $table->date('admission_exam_date')->nullable();
-            $table->date('class_start_date')->nullable();
-            $table->text('admission_process')->nullable();
-            $table->text('admission_features')->nullable();
+            if (!Schema::hasColumn('website_settings', 'admission_start_date')) {
+                $table->date('admission_start_date')->nullable();
+            }
+            if (!Schema::hasColumn('website_settings', 'admission_end_date')) {
+                $table->date('admission_end_date')->nullable();
+            }
+            if (!Schema::hasColumn('website_settings', 'admission_exam_date')) {
+                $table->date('admission_exam_date')->nullable();
+            }
+            if (!Schema::hasColumn('website_settings', 'class_start_date')) {
+                $table->date('class_start_date')->nullable();
+            }
+            if (!Schema::hasColumn('website_settings', 'admission_process')) {
+                $table->text('admission_process')->nullable();
+            }
+            if (!Schema::hasColumn('website_settings', 'admission_features')) {
+                $table->text('admission_features')->nullable();
+            }
         });
     }
 

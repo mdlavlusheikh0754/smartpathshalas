@@ -61,3 +61,19 @@ logs
 # ZKTime.Net
 /zktime_data/
 *.zktime
+
+# ZKTeco Sync (Python service - not needed on VPS)
+/zkteco_sync/
+
+# Development and testing files
+*.py
+*.hypothesis/
+.kiro/
+*_test.php
+*_check.php
+*_monitor.php
+*_fix.php
+*.bat
+PYTHON_*.md
+TESTING_*.md
+PROJECT_STATUS.md

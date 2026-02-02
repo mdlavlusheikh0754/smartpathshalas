@@ -26,6 +26,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'super_admin' => \App\Http\Middleware\EnsureSuperAdmin::class,
             'client' => \App\Http\Middleware\EnsureClient::class,
             'tenant.lock' => \App\Http\Middleware\CheckTenantLock::class,
+            'zkteco.rate_limit' => \App\Http\Middleware\ZktecoApiRateLimit::class,
+            'zkteco.validate' => \App\Http\Middleware\ZktecoApiValidation::class,
         ]);
         
         $middleware->api(prepend: [

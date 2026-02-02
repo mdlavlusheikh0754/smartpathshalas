@@ -9,7 +9,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('school_classes', function (Blueprint $table) {
-            $table->string('section')->nullable()->after('name');
+            if (!Schema::hasColumn('school_classes', 'section')) {
+                $table->string('section')->nullable()->after('name');
+            }
         });
     }
 

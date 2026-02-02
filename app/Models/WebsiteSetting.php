@@ -81,8 +81,16 @@ class WebsiteSetting extends Model
         $settings = static::first();
         
         if ($settings) {
+            // Remove any fields that aren't in the fillable array
+            $fillable = (new static())->getFillable();
+            $data = array_intersect_key($data, array_flip($fillable));
+            
             $settings->update($data);
         } else {
+            // Remove any fields that aren't in the fillable array
+            $fillable = (new static())->getFillable();
+            $data = array_intersect_key($data, array_flip($fillable));
+            
             $settings = static::create($data);
         }
         

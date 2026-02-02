@@ -152,8 +152,6 @@
                             <a href="{{ route('tenant.academic.syllabus') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600">সিলেবাস</a>
                             <a href="{{ route('tenant.academic.holidays') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600">ছুটির তালিকা</a>
                             <a href="{{ route('tenant.academic.calendar') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600">একাডেমিক ক্যালেন্ডার</a>
-                            <div class="border-t border-gray-100 my-1"></div>
-                            <a href="{{ route('homework.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600">বাড়ির কাজ</a>
                         </div>
                     </div>
 
@@ -171,24 +169,17 @@
                     <!-- Result -->
                     <a href="{{ route('public.result.index') }}" class="text-gray-700 hover:text-blue-600 font-medium transition px-2 py-1">ফলাফল</a>
 
-                    <!-- Gallery & Notice Dropdown -->
-                    <div class="relative group">
-                        <button class="flex items-center text-gray-700 hover:text-blue-600 font-medium transition px-2 py-1">
-                            গ্যালারি ও নোটিশ <i class="fas fa-chevron-down ml-1 text-xs"></i>
-                        </button>
-                        <div class="absolute left-0 mt-0 w-56 bg-white rounded-lg shadow-xl py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-left z-50 border border-gray-100">
-                            <a href="{{ route('tenant.gallery') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600">গ্যালারি</a>
-                            <a href="{{ route('tenant.notice') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600">নোটিশ বোর্ড</a>
-                        </div>
-                    </div>
+                    <!-- Gallery -->
+                    <a href="{{ route('tenant.gallery') }}" class="text-gray-700 hover:text-blue-600 font-medium transition px-2 py-1">গ্যালারি</a>
 
                     <!-- Contact -->
                     <a href="{{ route('tenant.contact') }}" class="text-gray-700 hover:text-blue-600 font-medium transition px-2 py-1">যোগাযোগ</a>
-                    
-                    <!-- Login Info -->
-                    <a href="{{ route('tenant.login.info') }}" class="text-gray-700 hover:text-blue-600 font-medium transition px-2 py-1 flex items-center gap-1">
-                        <i class="fas fa-info-circle text-sm"></i>লগইন তথ্য
-                    </a>
+
+                    <!-- Homework -->
+                    <a href="{{ route('homework.index') }}" class="text-gray-700 hover:text-blue-600 font-medium transition px-2 py-1 whitespace-nowrap">বাড়ির কাজ</a>
+
+                    <!-- Notice -->
+                    <a href="{{ route('tenant.notice') }}" class="text-gray-700 hover:text-blue-600 font-medium transition px-2 py-1">নোটিশ</a>
                 </div>
                 <div class="flex items-center gap-3">
                     @auth

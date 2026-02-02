@@ -581,6 +581,11 @@ class SettingController extends Controller
         return view('tenant.settings.academic');
     }
 
+    public function academicFiles()
+    {
+        return view('tenant.settings.academic-files');
+    }
+
     public function users()
     {
         return view('tenant.settings.users');
@@ -854,9 +859,24 @@ class SettingController extends Controller
         ]);
     }
 
+    public function showCustomPaymentMethod($id)
+    {
+        $paymentMethod = \App\Models\CustomPaymentMethod::findOrFail($id);
+
+        return response()->json([
+            'success' => true,
+            'data' => $paymentMethod
+        ]);
+    }
+
     public function backup()
     {
         return view('tenant.settings.backup');
+    }
+
+    public function security()
+    {
+        return view('tenant.settings.security');
     }
 
     public function deleteHeroImage(Request $request)

@@ -294,7 +294,7 @@ document.getElementById('apiConfigForm').addEventListener('submit', async functi
     const data = new FormData(form);
     
     try {
-        const response = await fetch('{{ route("tenant.settings.sms-gateway.update") }}', {
+        const response = await fetch('{{ route("tenant.settings.smsGateway.update") }}', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -322,7 +322,7 @@ document.getElementById('smsTemplatesForm').addEventListener('submit', async fun
     const data = new FormData(form);
     
     try {
-        const response = await fetch('{{ route("tenant.settings.sms-gateway.update") }}', {
+        const response = await fetch('{{ route("tenant.settings.smsGateway.update") }}', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -490,7 +490,7 @@ document.getElementById('send_test_sms').addEventListener('click', async functio
     btn.disabled = true;
 
     try {
-        const response = await fetch('{{ route("tenant.settings.sms-gateway.test") }}', {
+        const response = await fetch('{{ route("tenant.settings.smsGateway.test") }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

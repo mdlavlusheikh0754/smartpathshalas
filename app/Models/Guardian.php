@@ -19,6 +19,10 @@ class Guardian extends Authenticatable
         'password',
         'status',
         'photo',
+        'address',
+        'occupation',
+        'nid',
+        'relation_to_student',
     ];
 
     protected $hidden = [

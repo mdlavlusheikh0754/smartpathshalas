@@ -193,6 +193,39 @@ Route::middleware([
             Route::post('/{id}/attachment', [NoticeController::class, 'uploadAttachment']);
         });
         
+        // ZKTeco Attendance Integration
+        Route::prefix('zkteco')->middleware(['zkteco.validate', 'zkteco.rate_limit'])->group(function () {
+            // Device Management
+            Route::get('/devices', [\App\Http\Controllers\Api\ZktecoController::class, 'getDevices']);
+            Route::post('/devices', [\App\Http\Controllers\Api\ZktecoController::class, 'registerDevice']);
+            Route::get('/devices/{deviceId}/status', [\App\Http\Controllers\Api\ZktecoController::class, 'getDeviceStatus']);
+            Route::put('/devices/{deviceId}', [\App\Http\Controllers\Api\ZktecoController::class, 'updateDeviceConfig']);
+            Route::delete('/devices/{deviceId}', [\App\Http\Controllers\Api\ZktecoController::class, 'deleteDevice']);
+            Route::post('/devices/{deviceId}/heartbeat', [\App\Http\Controllers\Api\ZktecoController::class, 'updateHeartbeat']);
+            Route::get('/devices/{deviceId}/health', [\App\Http\Controllers\Api\ZktecoController::class, 'getDeviceHealth']);
+            Route::get('/devices/{deviceId}/activity', [\App\Http\Controllers\Api\ZktecoController::class, 'getDeviceActivityLog']);
+            
+            // Attendance Records
+            Route::post('/attendance/records', [\App\Http\Controllers\Api\ZktecoController::class, 'storeAttendanceRecords']);
+            Route::get('/attendance/records', [\App\Http\Controllers\Api\ZktecoController::class, 'getAttendanceRecords']);
+            Route::get('/attendance/student/{studentId}', [\App\Http\Controllers\Api\ZktecoController::class, 'getStudentAttendance']);
+            
+            // Student RFID Management
+            Route::get('/students/rfid-mappings', [\App\Http\Controllers\Api\ZktecoController::class, 'getRfidMappings']);
+            Route::post('/students/sync', [\App\Http\Controllers\Api\ZktecoController::class, 'syncStudents']);
+            Route::post('/students/{studentId}/rfid', [\App\Http\Controllers\Api\ZktecoController::class, 'assignRfid']);
+            Route::post('/students/rfid/bulk-assign', [\App\Http\Controllers\Api\ZktecoController::class, 'bulkAssignRfids']);
+            Route::post('/students/rfid/bulk-remove', [\App\Http\Controllers\Api\ZktecoController::class, 'bulkRemoveRfids']);
+            
+            // Reports and Analytics
+            Route::get('/reports/attendance', [\App\Http\Controllers\Api\ZktecoController::class, 'getAttendanceReports']);
+            Route::get('/reports/device-status', [\App\Http\Controllers\Api\ZktecoController::class, 'getDeviceStatusReports']);
+            
+            // Health Check and Monitoring
+            Route::get('/health', [\App\Http\Controllers\Api\ZktecoController::class, 'healthCheck']);
+            Route::get('/system/status', [\App\Http\Controllers\Api\ZktecoController::class, 'getSystemStatus']);
+        });
+
         // School Settings
         Route::prefix('school')->group(function () {
             Route::get('/settings', [SchoolController::class, 'getSettings']);

@@ -69,6 +69,10 @@ class AcademicSession extends Model
      */
     public function getFormattedDuration()
     {
+        if (!$this->start_date || !$this->end_date) {
+            return 'তারিখ নির্ধারিত নয়';
+        }
+        
         return $this->start_date->format('d M Y') . ' - ' . $this->end_date->format('d M Y');
     }
 }

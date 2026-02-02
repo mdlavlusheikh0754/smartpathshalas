@@ -132,6 +132,8 @@ class StudentController extends Controller
                         'phone' => $student->phone,
                         'email' => $student->email,
                         'password' => $defaultPassword ? \Hash::make($defaultPassword) : \Hash::make('12345678'),
+                        'status' => 'active',
+                        'relation_to_student' => 'guardian'
                     ]);
                     $guardiansCreated++;
                 }
@@ -374,6 +376,14 @@ class StudentController extends Controller
         if ($guardianPhone) {
             $guardianName = $validated['guardian_name'] ?? ($validated['father_name'] ?? ($validated['mother_name'] ?? 'Guardian'));
             $guardianEmail = $validated['father_email'] ?? ($validated['mother_email'] ?? null);
+            
+            // Determine relation to student
+            $relation = 'guardian';
+            if (isset($validated['father_mobile']) && $guardianPhone === $validated['father_mobile']) {
+                $relation = 'father';
+            } elseif (isset($validated['mother_mobile']) && $guardianPhone === $validated['mother_mobile']) {
+                $relation = 'mother';
+            }
 
             $guardian = Guardian::firstOrCreate(
                 ['phone' => $guardianPhone],
@@ -381,7 +391,8 @@ class StudentController extends Controller
                     'name' => $guardianName,
                     'email' => $guardianEmail,
                     'password' => Hash::make('12345678'), // Default password
-                    'status' => 'active'
+                    'status' => 'active',
+                    'relation_to_student' => $relation
                 ]
             );
 

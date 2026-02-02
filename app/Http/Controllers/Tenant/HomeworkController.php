@@ -20,7 +20,11 @@ class HomeworkController extends Controller
         $recentHomework = Homework::getRecent(6);
         $upcomingHomework = Homework::getUpcoming(7);
         
-        return view('tenant.homework.index', compact('recentHomework', 'upcomingHomework'));
+        // Get all unique classes and subjects for filters
+        $availableClasses = Homework::where('status', 'active')->distinct()->pluck('class')->sort()->values();
+        $availableSubjects = Homework::where('status', 'active')->distinct()->pluck('subject')->sort()->values();
+        
+        return view('tenant.homework.index', compact('recentHomework', 'upcomingHomework', 'availableClasses', 'availableSubjects'));
     }
 
     /**
