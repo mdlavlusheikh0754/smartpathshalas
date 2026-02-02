@@ -2,6 +2,7 @@
 *.log
 .env
 .env.backup
+.env.backup.*
 .env.production
 .phpunit.result.cache
 /.fleet
@@ -16,6 +17,7 @@
 /public/storage
 /storage/*.key
 /storage/pail
+/storage/tenant*/
 /vendor
 Homestead.json
 Homestead.yaml
